@@ -155,7 +155,7 @@ button { font-family: inherit; }
    ========================================================================== */
 .navbar {
   background: var(--paper);
-  padding: 20px 0;
+  padding: 18px 0;
   border-bottom: 1px solid var(--line-soft);
   position: sticky;
   top: var(--scrubber-h);
@@ -168,6 +168,7 @@ button { font-family: inherit; }
   font-size: 19px;
   text-decoration: none;
   color: var(--ink);
+  flex-shrink: 0;
 }
 .logo span { color: var(--accent); }
 .nav-links { display: flex; align-items: center; }
@@ -188,9 +189,47 @@ nav a:hover { color: var(--ink); }
 .social-icons-nav a { font-size: 18px; color: var(--muted); transition: 0.2s; }
 .social-icons-nav a:hover { color: var(--accent); transform: translateY(-2px); }
 
-@media (max-width: 720px) {
-  nav { display: none; }
+/* Hamburger toggle: hidden on tablet/laptop/desktop, shown only when the
+   inline nav no longer fits comfortably */
+.nav-toggle {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 21px;
+  color: var(--ink);
+  cursor: pointer;
+  margin-left: 20px;
+  padding: 4px;
+}
+
+@media (max-width: 860px) {
+  .nav-toggle { display: block; }
+
+  nav#primaryNav {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    gap: 0;
+    background: var(--paper);
+    border-bottom: 1px solid var(--line-soft);
+    box-shadow: 0 16px 24px -8px rgba(0,0,0,0.12);
+  }
+  nav#primaryNav.open { display: flex; }
+  nav#primaryNav a {
+    padding: 16px var(--gutter);
+    border-top: 1px solid var(--line-soft);
+    font-size: 16px;
+  }
+
   .social-icons-nav { margin-left: 0; padding-left: 0; border-left: none; }
+}
+
+@media (max-width: 480px) {
+  .navbar { padding: 14px 0; }
+  .logo { font-size: 17px; }
 }
 
 /* ==========================================================================
@@ -222,7 +261,7 @@ nav a:hover { color: var(--ink); }
   color: var(--muted-dark);
   max-width: 46ch;
 }
-.hero-buttons { display: flex; gap: 14px; }
+.hero-buttons { display: flex; gap: 14px; flex-wrap: wrap; }
 .btn-primary, .btn-secondary {
   padding: 14px 26px;
   border-radius: 8px;
@@ -259,10 +298,23 @@ nav a:hover { color: var(--ink); }
   letter-spacing: 0.05em;
 }
 
+/* Tablet: keep the two-column hero but tighten the gap and image size */
+@media (max-width: 1024px) and (min-width: 781px) {
+  .hero-grid { gap: 34px; }
+  .hero-image .frame { max-width: 280px; }
+}
+
 @media (max-width: 780px) {
+  .hero { padding: 60px 0 70px; }
   .hero-grid { grid-template-columns: 1fr; text-align: center; }
   .hero-text p { margin-left: auto; margin-right: auto; }
   .hero-buttons { justify-content: center; }
+  .hero-image { order: -1; margin-bottom: 10px; }
+}
+
+@media (max-width: 480px) {
+  .hero-buttons { width: 100%; }
+  .hero-buttons button { flex: 1 1 auto; }
 }
 
 /* ==========================================================================
@@ -346,6 +398,8 @@ nav a:hover { color: var(--ink); }
 .slider { display: flex; transition: transform 0.45s ease-in-out; }
 .slide { min-width: 100%; }
 .slide img, .slide video { width: 100%; height: 460px; object-fit: cover; background: var(--ink); }
+/* Portrait/mobile-app screenshots: show the full frame instead of cropping */
+.slide.portrait img { object-fit: contain; }
 .slide-btn {
   position: absolute; top: 50%; transform: translateY(-50%);
   background: rgba(20,21,26,0.85); color: var(--paper);
@@ -354,6 +408,19 @@ nav a:hover { color: var(--ink); }
 }
 .slide-btn:hover { background: var(--accent); }
 .left { left: 14px; } .right { right: 14px; }
+
+/* Slide height scales down on smaller viewports so screenshots don't
+   dominate the screen or force excessive scrolling */
+@media (max-width: 900px) {
+  .slide img, .slide video { height: 380px; }
+}
+@media (max-width: 600px) {
+  .slide img, .slide video { height: 300px; }
+  .slide-btn { width: 34px; height: 34px; font-size: 14px; }
+}
+@media (max-width: 400px) {
+  .slide img, .slide video { height: 240px; }
+}
 
 .project-card h3 { font-family: var(--font-display); font-size: 21px; margin-bottom: 12px; }
 .project-card p { color: var(--muted-dark); font-size: 15px; }
@@ -424,6 +491,26 @@ nav a:hover { color: var(--ink); }
 @media (max-width: 780px) {
   .contact-grid { grid-template-columns: 1fr; padding: 28px; }
 }
+@media (max-width: 480px) {
+  .contact-grid { padding: 20px; border-radius: 16px; }
+}
+
+/* ==========================================================================
+   10b. GLOBAL SMALL-SCREEN SPACING
+   Desktop/laptop/tablet keep generous section padding; phones get tighter
+   rhythm so content doesn't feel like it's swimming in whitespace.
+   ========================================================================== */
+@media (max-width: 780px) {
+  .section { padding: 60px 0; }
+  .section-head { margin-bottom: 36px; }
+  .project-card { padding: 22px; margin-bottom: 28px; }
+  .skills-grid { gap: 16px; }
+  .skill-card { padding: 26px 22px; }
+}
+@media (max-width: 400px) {
+  .container { width: 92%; }
+  .project-card { padding: 16px; }
+}
 
 /* ==========================================================================
    11. FOOTER
@@ -460,6 +547,19 @@ footer {
   transition: transform 0.2s;
 }
 .whatsapp-float:hover { transform: scale(1.08); }
+@media (max-width: 480px) {
+  .whatsapp-float { width: 46px; height: 46px; font-size: 22px; bottom: 18px; right: 18px; }
+}
+
+/* ==========================================================================
+   13. LARGE DESKTOP
+   Content stays comfortably centered instead of stretching edge to edge
+   on very wide monitors.
+   ========================================================================== */
+@media (min-width: 1440px) {
+  :root { --max-w: 1180px; }
+  .hero-image .frame { max-width: 360px; }
+}
 
 </style>
 </head>
@@ -484,9 +584,9 @@ footer {
      ======================================================================== -->
 <header class="navbar">
   <div class="container nav-flex">
-    <a href="#home" class="logo">Azim<span>.</span>Azraei</a>
+    <a href="#home" class="logo">Azim<span></span>Azraei</a>
     <div class="nav-links">
-      <nav>
+      <nav id="primaryNav">
         <a href="#home">Home</a>
         <a href="#about">About</a>
         <a href="#skills">Skills</a>
@@ -497,6 +597,9 @@ footer {
         <a href="https://www.linkedin.com/in/azim-azraei-2766a0339" target="_blank" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
         <a href="https://wa.me/60199355497" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
       </div>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="primaryNav">
+        <i class="fas fa-bars"></i>
+      </button>
     </div>
   </div>
 </header>
@@ -642,7 +745,7 @@ footer {
         <div class="slider">
           <div class="slide">
             <video controls poster="Game/G1.png">
-              <source src="DemoGame.mp4" type="video/mp4">
+              <source src="Game/DemoGame.mp4" type="video/mp4">
               Your browser does not support the video tag.
             </video>
           </div>
@@ -650,6 +753,24 @@ footer {
       </div>
       <h3>Mail Rush</h3>
       <p>A neighborhood delivery game built in Unity, where players take on the role of a mail carrier delivering mail while avoiding dogs on patrol. The project demonstrates core gameplay mechanics — movement, obstacle avoidance, and time-based challenges — along with character control, AI-driven enemy behavior, and level design.</p>
+    </div>
+
+    <div class="project-card">
+      <div class="project-meta"><span class="idx">04</span><span>MOBILE APP · INTERNSHIP</span></div>
+      <div class="slider-container" id="slider4">
+        <button class="slide-btn left" onclick="moveSlide('slider4', -1)" aria-label="Previous image">❮</button>
+        <div class="slider">
+          <div class="slide portrait"><img src="MBS/1 Splash Screen.png" alt="MBS Parking screenshot 1 - splash screen"></div>
+          <div class="slide portrait"><img src="MBS/2 Login.png" alt="MBS Parking screenshot 2 - login"></div>
+          <div class="slide portrait"><img src="MBS/3 Register.png" alt="MBS Parking screenshot 3 - register"></div>
+          <div class="slide portrait"><img src="MBS/4 Change Password.png" alt="MBS Parking screenshot 4 - change password"></div>
+          <div class="slide portrait"><img src="MBS/5 Dashboard.png" alt="MBS Parking screenshot 5 - dashboard"></div>
+          <div class="slide portrait"><img src="MBS/10 Payment.png" alt="MBS Parking screenshot 6 - payment"></div>
+        </div>
+        <button class="slide-btn right" onclick="moveSlide('slider4', 1)" aria-label="Next image">❯</button>
+      </div>
+      <h3>Smart Business Parking Rental System — Majlis Bandaraya Seremban</h3>
+      <p>Developed a mobile application with my internship team from April to July 2026 to help business owners conveniently apply for and manage business parking rentals under Majlis Bandaraya Seremban (MBS). The application streamlines the rental process by allowing users to submit applications, select available parking spaces, make payments, and monitor their application status digitally.</p>
     </div>
   </div>
 </section>
@@ -702,6 +823,39 @@ footer {
 function scrollToSection(id) {
   document.getElementById(id).scrollIntoView({ behavior: "smooth" });
 }
+
+/* ==========================================================================
+   A2. MOBILE NAV TOGGLE (hamburger)
+   ========================================================================== */
+(function initMobileNav() {
+  const toggle = document.getElementById("navToggle");
+  const nav = document.getElementById("primaryNav");
+  if (!toggle || !nav) return;
+
+  function closeMenu() {
+    nav.classList.remove("open");
+    toggle.setAttribute("aria-expanded", "false");
+    toggle.innerHTML = '<i class="fas fa-bars"></i>';
+  }
+  function openMenu() {
+    nav.classList.add("open");
+    toggle.setAttribute("aria-expanded", "true");
+    toggle.innerHTML = '<i class="fas fa-xmark"></i>';
+  }
+
+  toggle.addEventListener("click", () => {
+    nav.classList.contains("open") ? closeMenu() : openMenu();
+  });
+
+  // Close after picking a section
+  nav.querySelectorAll("a").forEach(a => a.addEventListener("click", closeMenu));
+
+  // If the viewport is resized past the mobile breakpoint, make sure the
+  // dropdown doesn't stay stuck open underneath the now-visible inline nav
+  window.addEventListener("resize", () => {
+    if (window.innerWidth > 860) closeMenu();
+  });
+})();
 
 /* ==========================================================================
    B. SCROLL TIMELINE (scrubber fill, chapter markers, timecode label)
