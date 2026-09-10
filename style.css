@@ -402,6 +402,13 @@ nav a:hover { color: var(--ink); }
 @media (max-width: 900px) {
   .slide img, .slide video { height: 380px; }
 }
+@media (max-width: 780px) {
+  /* Screenshots vary a lot in aspect ratio; on phones, crop-to-fill (cover)
+     often chops off menus/buttons at the top or bottom. Switch to contain
+     so the whole screenshot is always visible, letterboxed on the dark
+     background instead of cut off. */
+  .slide img, .slide video { object-fit: contain; background: var(--ink); }
+}
 @media (max-width: 600px) {
   .slide img, .slide video { height: 300px; }
   .slide-btn { width: 34px; height: 34px; font-size: 14px; }
