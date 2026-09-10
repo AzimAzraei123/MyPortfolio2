@@ -1,550 +1,153 @@
 /* ==========================================================================
-   1. DESIGN TOKENS
-   A video-editor's palette: near-black "ink", warm paper, a REC-light red
-   for the signature accent, and a monitor-glow teal for secondary emphasis.
+   A. SMOOTH SCROLL HELPER
    ========================================================================== */
-:root {
-  /* colour */
-  --ink:        #14151a;
-  --ink-soft:   #1e2027;
-  --paper:      #f5f3ed;
-  --paper-dim:  #eae7dd;
-  --line:       #26282f;      /* hairline on dark */
-  --line-soft:  #ddd9cd;      /* hairline on light */
-  --muted:      #8b8f97;
-  --muted-dark: #6b6f76;
-  --accent:     #ff4436;      /* REC red */
-  --accent-2:   #34d6c4;      /* monitor teal */
-
-  /* type */
-  --font-display: "Space Grotesk", sans-serif;
-  --font-body:    "Inter", sans-serif;
-  --font-mono:    "IBM Plex Mono", monospace;
-
-  /* layout */
-  --max-w: 1100px;
-  --gutter: 7vw;
-  --radius: 14px;
-  --scrubber-h: 44px;
+function scrollToSection(id) {
+  document.getElementById(id).scrollIntoView({ behavior: "smooth" });
 }
 
 /* ==========================================================================
-   2. RESET
+   A2. MOBILE NAV TOGGLE (hamburger)
    ========================================================================== */
-* { margin: 0; padding: 0; box-sizing: border-box; }
-html { scroll-behavior: smooth; scroll-padding-top: calc(var(--scrubber-h) + 70px); }
-body {
-  background: var(--paper);
-  color: var(--ink);
-  font-family: var(--font-body);
-  line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
-}
-img, video { max-width: 100%; display: block; }
-a { color: inherit; }
-button { font-family: inherit; }
+(function initMobileNav() {
+  const toggle = document.getElementById("navToggle");
+  const nav = document.getElementById("primaryNav");
+  if (!toggle || !nav) return;
 
-.container { width: 88%; max-width: var(--max-w); margin: 0 auto; }
-
-@media (prefers-reduced-motion: reduce) {
-  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
-}
-
-/* ==========================================================================
-   3. SIGNATURE COMPONENT — SCROLL TIMELINE
-   A playback scrubber fixed to the top of the page: the playhead advances
-   with scroll position and chapter markers jump to each section, echoing
-   the editing timelines Azim works in daily.
-   ========================================================================== */
-.scrubber {
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  height: var(--scrubber-h);
-  background: var(--ink);
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  padding: 0 var(--gutter);
-  border-bottom: 1px solid var(--line);
-}
-.scrubber-rec {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-family: var(--font-mono);
-  font-size: 12px;
-  color: var(--accent);
-  letter-spacing: 0.04em;
-  flex-shrink: 0;
-}
-.scrubber-rec .dot {
-  width: 8px; height: 8px; border-radius: 50%;
-  background: var(--accent);
-  animation: pulse 1.6s ease-in-out infinite;
-}
-@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
-
-.scrubber-track {
-  position: relative;
-  flex: 1;
-  height: 2px;
-  background: var(--line);
-  border-radius: 2px;
-}
-.scrubber-fill {
-  position: absolute;
-  left: 0; top: 0; height: 100%;
-  width: 0%;
-  background: var(--accent-2);
-  border-radius: 2px;
-  transition: width 0.1s linear;
-}
-.scrubber-marks {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.scrubber-marks button {
-  position: relative;
-  width: 12px; height: 12px;
-  margin: 0 -5px;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-}
-.scrubber-marks button::before {
-  content: "";
-  position: absolute; inset: 3px;
-  border-radius: 50%;
-  background: var(--paper);
-  border: 2px solid var(--ink);
-  transition: 0.25s;
-}
-.scrubber-marks button.active::before { background: var(--accent-2); border-color: var(--accent-2); }
-.scrubber-marks button:hover::before { border-color: var(--accent-2); }
-.scrubber-label {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--muted);
-  flex-shrink: 0;
-  min-width: 120px;
-  text-align: right;
-}
-@media (max-width: 720px) {
-  .scrubber-label, .scrubber-rec span.txt { display: none; }
-  .scrubber { gap: 12px; }
-}
-
-/* ==========================================================================
-   4. NAVBAR
-   ========================================================================== */
-.navbar {
-  background: var(--paper);
-  padding: 18px 0;
-  border-bottom: 1px solid var(--line-soft);
-  position: sticky;
-  top: var(--scrubber-h);
-  z-index: 999;
-}
-.nav-flex { display: flex; justify-content: space-between; align-items: center; }
-.logo {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 19px;
-  text-decoration: none;
-  color: var(--ink);
-  flex-shrink: 0;
-}
-.logo span { color: var(--accent); }
-.nav-links { display: flex; align-items: center; }
-nav { display: flex; gap: 30px; }
-nav a {
-  text-decoration: none;
-  color: var(--muted-dark);
-  font-weight: 500;
-  font-size: 15px;
-  transition: color 0.2s;
-}
-nav a:hover { color: var(--ink); }
-.social-icons-nav {
-  display: flex; gap: 18px;
-  margin-left: 30px; padding-left: 30px;
-  border-left: 1px solid var(--line-soft);
-}
-.social-icons-nav a { font-size: 18px; color: var(--muted); transition: 0.2s; }
-.social-icons-nav a:hover { color: var(--accent); transform: translateY(-2px); }
-
-/* Hamburger toggle: hidden on tablet/laptop/desktop, shown only when the
-   inline nav no longer fits comfortably */
-.nav-toggle {
-  display: none;
-  background: none;
-  border: none;
-  font-size: 21px;
-  color: var(--ink);
-  cursor: pointer;
-  margin-left: 20px;
-  padding: 4px;
-}
-
-@media (max-width: 860px) {
-  .nav-toggle { display: block; }
-
-  nav#primaryNav {
-    display: none;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    flex-direction: column;
-    gap: 0;
-    background: var(--paper);
-    border-bottom: 1px solid var(--line-soft);
-    box-shadow: 0 16px 24px -8px rgba(0,0,0,0.12);
+  function closeMenu() {
+    nav.classList.remove("open");
+    toggle.setAttribute("aria-expanded", "false");
+    toggle.innerHTML = '<i class="fas fa-bars"></i>';
   }
-  nav#primaryNav.open { display: flex; }
-  nav#primaryNav a {
-    padding: 16px var(--gutter);
-    border-top: 1px solid var(--line-soft);
-    font-size: 16px;
+  function openMenu() {
+    nav.classList.add("open");
+    toggle.setAttribute("aria-expanded", "true");
+    toggle.innerHTML = '<i class="fas fa-xmark"></i>';
   }
 
-  .social-icons-nav { margin-left: 0; padding-left: 0; border-left: none; }
-}
+  toggle.addEventListener("click", () => {
+    nav.classList.contains("open") ? closeMenu() : openMenu();
+  });
 
-@media (max-width: 480px) {
-  .navbar { padding: 14px 0; }
-  .logo { font-size: 17px; }
+  // Close after picking a section
+  nav.querySelectorAll("a").forEach(a => a.addEventListener("click", closeMenu));
+
+  // If the viewport is resized past the mobile breakpoint, make sure the
+  // dropdown doesn't stay stuck open underneath the now-visible inline nav
+  window.addEventListener("resize", () => {
+    if (window.innerWidth > 860) closeMenu();
+  });
+})();
+
+/* ==========================================================================
+   B. SCROLL TIMELINE (scrubber fill, chapter markers, timecode label)
+   ========================================================================== */
+(function initScrubber() {
+  const sections = [
+    { id: "home",     label: "Home" },
+    { id: "about",    label: "About" },
+    { id: "skills",   label: "Skills" },
+    { id: "projects", label: "Projects" },
+    { id: "contact",  label: "Contact" }
+  ];
+
+  const marksEl = document.getElementById("scrubberMarks");
+  const fillEl = document.getElementById("scrubberFill");
+  const labelEl = document.getElementById("scrubberLabel");
+
+  sections.forEach((s, i) => {
+    const btn = document.createElement("button");
+    btn.dataset.target = s.id;
+    btn.setAttribute("aria-label", "Jump to " + s.label);
+    btn.addEventListener("click", () => scrollToSection(s.id));
+    marksEl.appendChild(btn);
+  });
+
+  const markButtons = marksEl.querySelectorAll("button");
+
+  function formatTimecode(fraction) {
+    const totalSeconds = Math.floor(fraction * 240); // stylised 4-minute reel
+    const m = String(Math.floor(totalSeconds / 60)).padStart(2, "0");
+    const s = String(totalSeconds % 60).padStart(2, "0");
+    return m + ":" + s;
+  }
+
+  function updateScrubber() {
+    const doc = document.documentElement;
+    const scrollTop = doc.scrollTop || document.body.scrollTop;
+    const scrollHeight = doc.scrollHeight - doc.clientHeight;
+    const fraction = scrollHeight > 0 ? scrollTop / scrollHeight : 0;
+
+    fillEl.style.width = (fraction * 100) + "%";
+
+    let current = sections[0];
+    for (const s of sections) {
+      const el = document.getElementById(s.id);
+      if (el && el.getBoundingClientRect().top < window.innerHeight * 0.4) {
+        current = s;
+      }
+    }
+    labelEl.textContent = formatTimecode(fraction) + " — " + current.label;
+    markButtons.forEach(btn => btn.classList.toggle("active", btn.dataset.target === current.id));
+  }
+
+  window.addEventListener("scroll", updateScrubber, { passive: true });
+  window.addEventListener("resize", updateScrubber);
+  updateScrubber();
+})();
+
+/* ==========================================================================
+   C. PROJECT IMAGE SLIDERS
+   ========================================================================== */
+const sliderStates = {};
+function moveSlide(sliderId, direction) {
+  const container = document.getElementById(sliderId);
+  const slider = container.querySelector(".slider");
+  const slides = container.querySelectorAll(".slide");
+  if (!sliderStates[sliderId]) sliderStates[sliderId] = 0;
+  sliderStates[sliderId] = (sliderStates[sliderId] + direction + slides.length) % slides.length;
+  slider.style.transform = `translateX(-${sliderStates[sliderId] * 100}%)`;
 }
 
 /* ==========================================================================
-   5. HERO
+   D. CONTACT FORM (AJAX submit via Formspree)
    ========================================================================== */
-.hero { padding: 90px 0 100px; }
-.hero-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 50px; align-items: center; }
-.eyebrow {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  color: var(--muted-dark);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  display: flex; align-items: center; gap: 8px;
-  margin-bottom: 18px;
-}
-.eyebrow::before { content: "▶"; color: var(--accent); font-size: 10px; }
-.hero-text h1 {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: clamp(34px, 5vw, 52px);
-  line-height: 1.1;
-  letter-spacing: -0.01em;
-}
-.hero-text h1 .accent { color: var(--accent); }
-.hero-text p {
-  font-size: 17px;
-  margin: 20px 0 32px;
-  color: var(--muted-dark);
-  max-width: 46ch;
-}
-.hero-buttons { display: flex; gap: 14px; flex-wrap: wrap; }
-.btn-primary, .btn-secondary {
-  padding: 14px 26px;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 14px;
-  cursor: pointer;
-  border: none;
-  transition: 0.2s;
-}
-.btn-primary { background: var(--ink); color: var(--paper); }
-.btn-primary:hover { background: var(--accent); }
-.btn-secondary { background: transparent; color: var(--ink); border: 1px solid var(--line-soft); }
-.btn-secondary:hover { border-color: var(--ink); }
+(function initContactForm() {
+  const form = document.getElementById("azim-contact-form");
+  const thankYou = document.getElementById("thank-you-msg");
+  const submitBtn = document.getElementById("submit-btn");
 
-.hero-image { position: relative; }
-.hero-image .frame {
-  position: relative;
-  border-radius: var(--radius);
-  overflow: hidden;
-  border: 1px solid var(--line-soft);
-  background: var(--ink);
-  max-width: 340px;
-  margin: auto;
-}
-.hero-image img { width: 100%; display: block; }
-.hero-image .frame-tag {
-  position: absolute; top: 12px; left: 12px;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  color: var(--paper);
-  background: rgba(20,21,26,0.7);
-  padding: 4px 8px;
-  border-radius: 4px;
-  letter-spacing: 0.05em;
-}
+  form.addEventListener("submit", async function (event) {
+    event.preventDefault();
+    submitBtn.disabled = true;
+    submitBtn.innerText = "Sending...";
 
-/* Tablet: keep the two-column hero but tighten the gap and image size */
-@media (max-width: 1024px) and (min-width: 781px) {
-  .hero-grid { gap: 34px; }
-  .hero-image .frame { max-width: 280px; }
-}
+    const data = new FormData(event.target);
+    try {
+      const response = await fetch(event.target.action, {
+        method: "POST",
+        body: data,
+        headers: { Accept: "application/json" }
+      });
+      if (response.ok) {
+        form.style.display = "none";
+        thankYou.style.display = "block";
+      } else {
+        alert("Oops! There was a problem submitting your form.");
+        submitBtn.disabled = false;
+        submitBtn.innerText = "Send Message";
+      }
+    } catch (err) {
+      alert("Network error. Please try again later.");
+      submitBtn.disabled = false;
+      submitBtn.innerText = "Send Message";
+    }
+  });
 
-@media (max-width: 780px) {
-  .hero { padding: 60px 0 70px; }
-  .hero-grid { grid-template-columns: 1fr; text-align: center; }
-  .hero-text p { margin-left: auto; margin-right: auto; }
-  .hero-buttons { justify-content: center; }
-  .hero-image { order: -1; margin-bottom: 10px; }
-}
-
-@media (max-width: 480px) {
-  .hero-buttons { width: 100%; }
-  .hero-buttons button { flex: 1 1 auto; }
-}
-
-/* ==========================================================================
-   6. SHARED SECTION HEADER
-   Section eyebrows read like chapter timecodes, reinforcing the timeline
-   motif set up in the scrubber.
-   ========================================================================== */
-.section { padding: 90px 0; scroll-margin-top: calc(var(--scrubber-h) + 30px); }
-.section-alt { background: var(--ink-soft); color: var(--paper); }
-.section-head { text-align: center; max-width: 560px; margin: 0 auto 50px; }
-.section-head .code {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  color: var(--accent);
-  letter-spacing: 0.08em;
-  display: block;
-  margin-bottom: 10px;
-}
-.section-head h2 {
-  font-family: var(--font-display);
-  font-size: clamp(26px, 3.5vw, 34px);
-  font-weight: 600;
-}
-.section-alt .section-head p { color: var(--muted); }
-.section-head p { color: var(--muted-dark); margin-top: 10px; }
-
-/* ==========================================================================
-   7. ABOUT
-   ========================================================================== */
-.about-body { max-width: 720px; margin: 0 auto; text-align: center; font-size: 16.5px; color: var(--muted-dark); }
-
-/* ==========================================================================
-   8. SKILLS
-   ========================================================================== */
-.skills-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 22px;
-}
-.skill-card {
-  background: var(--ink);
-  padding: 32px 28px;
-  border-radius: var(--radius);
-  border: 1px solid var(--line);
-  transition: 0.25s;
-}
-.skill-card:hover { border-color: var(--accent-2); transform: translateY(-4px); }
-.skill-card i { font-size: 26px; color: var(--accent-2); margin-bottom: 16px; display: block; }
-.skill-card h3 { font-family: var(--font-display); font-size: 17px; margin-bottom: 16px; }
-.skill-tags { display: flex; flex-wrap: wrap; gap: 8px; }
-.tag {
-  background: rgba(255,255,255,0.06);
-  color: var(--muted);
-  padding: 5px 11px;
-  border-radius: 6px;
-  font-size: 12.5px;
-  font-family: var(--font-mono);
-}
-
-/* ==========================================================================
-   9. PROJECTS
-   ========================================================================== */
-.project-card {
-  background: white;
-  padding: 30px;
-  border-radius: var(--radius);
-  border: 1px solid var(--line-soft);
-  margin-bottom: 40px;
-}
-.project-card:last-child { margin-bottom: 0; }
-.project-meta {
-  display: flex; align-items: center; gap: 10px;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--muted);
-  margin-bottom: 14px;
-}
-.project-meta .idx { color: var(--accent); }
-
-.slider-container { position: relative; overflow: hidden; border-radius: 10px; margin-bottom: 22px; }
-.slider { display: flex; transition: transform 0.45s ease-in-out; }
-.slide { min-width: 100%; }
-.slide img, .slide video { width: 100%; height: 460px; object-fit: cover; background: var(--ink); }
-/* Portrait/mobile-app screenshots: show the full frame instead of cropping */
-.slide.portrait img { object-fit: contain; }
-.slide-btn {
-  position: absolute; top: 50%; transform: translateY(-50%);
-  background: rgba(20,21,26,0.85); color: var(--paper);
-  border: none; width: 38px; height: 38px; cursor: pointer;
-  border-radius: 50%; z-index: 10; transition: 0.2s;
-}
-.slide-btn:hover { background: var(--accent); }
-.left { left: 14px; } .right { right: 14px; }
-
-/* Slide height scales down on smaller viewports so screenshots don't
-   dominate the screen or force excessive scrolling */
-@media (max-width: 900px) {
-  .slide img, .slide video { height: 380px; }
-}
-@media (max-width: 600px) {
-  .slide img, .slide video { height: 300px; }
-  .slide-btn { width: 34px; height: 34px; font-size: 14px; }
-}
-@media (max-width: 400px) {
-  .slide img, .slide video { height: 240px; }
-}
-
-.project-card h3 { font-family: var(--font-display); font-size: 21px; margin-bottom: 12px; }
-.project-card p { color: var(--muted-dark); font-size: 15px; }
-
-/* ==========================================================================
-   10. CONTACT
-   ========================================================================== */
-.contact-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 46px;
-  background: var(--ink);
-  color: var(--paper);
-  padding: 44px;
-  border-radius: 20px;
-}
-.contact-form { display: grid; gap: 14px; }
-.contact-form input, .contact-form textarea {
-  padding: 14px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: var(--ink-soft);
-  color: var(--paper);
-  outline: none;
-  font-family: var(--font-body);
-  font-size: 14px;
-}
-.contact-form input::placeholder, .contact-form textarea::placeholder { color: var(--muted); }
-.contact-form input:focus, .contact-form textarea:focus { border-color: var(--accent-2); }
-.contact-form button {
-  background: var(--accent);
-  color: var(--paper);
-  padding: 14px;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: 0.2s;
-}
-.contact-form button:hover { background: var(--accent-2); color: var(--ink); }
-.contact-form button:disabled { opacity: 0.6; cursor: not-allowed; }
-
-#thank-you-msg {
-  display: none;
-  text-align: center;
-  padding: 40px 20px;
-  background: rgba(52,214,196,0.08);
-  border: 1px solid rgba(52,214,196,0.3);
-  border-radius: 12px;
-}
-#thank-you-msg i { font-size: 46px; color: var(--accent-2); margin-bottom: 14px; }
-#thank-you-msg .reset-link {
-  margin-top: 18px; background: none; border: none;
-  color: var(--accent-2); cursor: pointer; font-weight: 600;
-  text-decoration: underline; font-size: 14px;
-}
-
-.social-stack { display: flex; flex-direction: column; gap: 16px; }
-.social-item {
-  display: flex; align-items: center; gap: 14px;
-  text-decoration: none; color: var(--paper);
-  padding: 16px; border: 1px solid var(--line); border-radius: 10px;
-  transition: 0.2s;
-}
-.social-item i { color: var(--accent-2); font-size: 18px; width: 20px; }
-.social-item:hover { border-color: var(--accent-2); background: var(--ink-soft); }
-
-@media (max-width: 780px) {
-  .contact-grid { grid-template-columns: 1fr; padding: 28px; }
-}
-@media (max-width: 480px) {
-  .contact-grid { padding: 20px; border-radius: 16px; }
-}
-
-/* ==========================================================================
-   10b. GLOBAL SMALL-SCREEN SPACING
-   Desktop/laptop/tablet keep generous section padding; phones get tighter
-   rhythm so content doesn't feel like it's swimming in whitespace.
-   ========================================================================== */
-@media (max-width: 780px) {
-  .section { padding: 60px 0; }
-  .section-head { margin-bottom: 36px; }
-  .project-card { padding: 22px; margin-bottom: 28px; }
-  .skills-grid { gap: 16px; }
-  .skill-card { padding: 26px 22px; }
-}
-@media (max-width: 400px) {
-  .container { width: 92%; }
-  .project-card { padding: 16px; }
-}
-
-/* ==========================================================================
-   11. FOOTER
-   ========================================================================== */
-footer {
-  padding: 30px 0;
-  background: var(--ink);
-  color: var(--muted);
-  text-align: center;
-  font-family: var(--font-mono);
-  font-size: 12px;
-  border-top: 1px solid var(--line);
-}
-
-/* ==========================================================================
-   12. FLOATING WHATSAPP
-   ========================================================================== */
-.whatsapp-float {
-  position: fixed;
-  bottom: 28px;
-  right: 28px;
-  background: #25d366;
-  color: white;
-  width: 54px;
-  height: 54px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 26px;
-  z-index: 1000;
-  text-decoration: none;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.25);
-  transition: transform 0.2s;
-}
-.whatsapp-float:hover { transform: scale(1.08); }
-@media (max-width: 480px) {
-  .whatsapp-float { width: 46px; height: 46px; font-size: 22px; bottom: 18px; right: 18px; }
-}
-
-/* ==========================================================================
-   13. LARGE DESKTOP
-   Content stays comfortably centered instead of stretching edge to edge
-   on very wide monitors.
-   ========================================================================== */
-@media (min-width: 1440px) {
-  :root { --max-w: 1180px; }
-  .hero-image .frame { max-width: 360px; }
-}
+  window.resetForm = function () {
+    form.reset();
+    form.style.display = "grid";
+    thankYou.style.display = "none";
+    submitBtn.disabled = false;
+    submitBtn.innerText = "Send Message";
+  };
+})();
